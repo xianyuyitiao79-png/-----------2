@@ -38,8 +38,12 @@ export function CameraController({ introState }: CameraControllerProps) {
        // Increase Z distance to 45 to comfortably fit the whole tree (height ~22 units)
        // Center Y at 1 (midpoint of -10 to 12)
        const treeViewPos = new THREE.Vector3(0, 1, 45)
-       // If we are too close, pull back
-       if (camera.position.distanceTo(treeViewPos) > 0.5) {
+       
+       // Force update if camera is very far or in weird state
+       if (camera.position.z < 5) {
+          camera.position.copy(treeViewPos)
+          camera.lookAt(0, 1, 0)
+       } else if (camera.position.distanceTo(treeViewPos) > 0.5) {
          camera.position.lerp(treeViewPos, delta * 2)
          camera.lookAt(0, 1, 0) // Look at tree center
        }

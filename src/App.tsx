@@ -50,6 +50,7 @@ function App() {
     // 4.0s: Fully dispersed & Camera inside, switch to finished
     setTimeout(() => {
         setIntroState('finished')
+        setFormed(true) // Ensure tree is formed immediately when finished
     }, 4000)
   }
 

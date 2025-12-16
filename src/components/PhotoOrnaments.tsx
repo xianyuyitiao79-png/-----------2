@@ -15,7 +15,10 @@ export function PhotoOrnaments({ progressRef, formed }: PhotoOrnamentsProps) {
   // Load textures
   // We assume photos are named 1.jpg to 12.jpg
   const photoPaths = useMemo(() => {
-    return Array.from({ length: PHOTO_COUNT }, (_, i) => `/photos/${i + 1}.jpg`)
+    // Check if we are in production and running under a subdirectory
+    const isProduction = import.meta.env.PROD
+    const base = isProduction ? '/-----------2' : ''
+    return Array.from({ length: PHOTO_COUNT }, (_, i) => `${base}/photos/${i + 1}.jpg`)
   }, [])
 
   const textures = useLoader(THREE.TextureLoader, photoPaths)
