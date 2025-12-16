@@ -15,10 +15,12 @@ export function PhotoOrnaments({ progressRef, formed }: PhotoOrnamentsProps) {
   // Load textures
   // We assume photos are named 1.jpg to 12.jpg
   const photoPaths = useMemo(() => {
-    // Check if we are in production and running under a subdirectory
-    const isProduction = import.meta.env.PROD
-    const base = isProduction ? '/-----------2' : ''
-    return Array.from({ length: PHOTO_COUNT }, (_, i) => `${base}/photos/${i + 1}.jpg`)
+    // In Vite, import.meta.env.BASE_URL gives us the configured base path
+    // This works for both dev (if base is set) and prod
+    const base = import.meta.env.BASE_URL
+    // Ensure base doesn't end with slash if we're adding one, or just join carefully
+    const cleanBase = base.endsWith('/') ? base.slice(0, -1) : base
+    return Array.from({ length: PHOTO_COUNT }, (_, i) => `${cleanBase}/photos/${i + 1}.jpg`)
   }, [])
 
   const textures = useLoader(THREE.TextureLoader, photoPaths)
