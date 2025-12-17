@@ -20,18 +20,16 @@ export function IntroGift({ onOpen }: IntroGiftProps) {
   const lidGeo = useMemo(() => new THREE.BoxGeometry(5.2, 0.5, 5.2, 16, 2, 16), [])
   
   // Spring animation
-  const { lidRotation, scale, emergeY, ribbonScale, lidLift, explosionProgress } = useSpring({
+  const { lidRotation, scale, emergeY, ribbonScale, lidLift } = useSpring({
     lidRotation: isOpen ? -Math.PI / 1.1 : 0,
     lidLift: isOpen ? 0 : 0.1, 
-    scale: isOpen ? 1 : 1, // Don't scale up massive anymore, let it explode
+    scale: isOpen ? 1 : 1, 
     emergeY: 0, 
     ribbonScale: isOpen ? 0 : 1,
-    explosionProgress: isExploding ? 1 : 0,
     from: { emergeY: -10 },
     config: (key) => {
         if (key === 'lidRotation') return { mass: 1, tension: 60, friction: 18, delay: 500 }
         if (key === 'ribbonScale') return { duration: 400 }
-        if (key === 'explosionProgress') return { duration: 2500 } // Slow explosion
         if (key === 'emergeY') return { duration: 2000 }
         return { mass: 1, tension: 170, friction: 26 }
     },
@@ -39,14 +37,6 @@ export function IntroGift({ onOpen }: IntroGiftProps) {
         if (isOpen) onOpen()
     }
   })
-
-  // Trigger explosion after lid opens
-  useEffect(() => {
-    if (isOpen) {
-        const t = setTimeout(() => setIsExploding(true), 1200) // Wait for lid to open & burst
-        return () => clearTimeout(t)
-    }
-  }, [isOpen])
 
   const handleClick = (e: any) => {
     e.stopPropagation()
@@ -58,8 +48,8 @@ export function IntroGift({ onOpen }: IntroGiftProps) {
     const t = state.clock.elapsedTime
     const yBob = Math.sin(t * 1.0) * 0.2 + emergeY.get() 
     
-    // Animate Box (only if not exploding yet)
-    if (groupRef.current && !isExploding) {
+    // Animate Box
+    if (groupRef.current) {
         groupRef.current.position.y = yBob
         groupRef.current.rotation.y = Math.sin(t * 0.2) * 0.1 + t * 0.1
         groupRef.current.rotation.x = Math.sin(t * 0.5) * 0.05
@@ -69,10 +59,6 @@ export function IntroGift({ onOpen }: IntroGiftProps) {
     // Animate Text
     if (textRef.current) {
         textRef.current.position.y = yBob
-        // Fade out text when exploding
-        if (isExploding) {
-            textRef.current.visible = false
-        }
     }
   })
   
@@ -123,36 +109,14 @@ export function IntroGift({ onOpen }: IntroGiftProps) {
            )}
         </animated.group>
 
-        {/* EXPLOSION PARTICLES (Rendered when isExploding is true) */}
-        {isExploding && (
-           <group position={[0, 0, 0]}> 
-             {/* Note: We need to match the last known position/rotation of the box
-                 Ideally we would lerp, but since it's an explosion, starting from 0,0,0 + yBob offset is close enough
-                 or we can pass the animated values.
-                 But React Spring values are objects.
-                 Let's just position them at 0, 2.5, 0 (base) roughly.
-                 For precision, we'd need to freeze the rotation.
-                 Let's assume the box is roughly center.
-             */}
-             <DisintegrationEffect 
-                geometry={boxGeo} 
-                progress={explosionProgress.get()} 
-                position={[0, 2.5, 0]}
-                color="#FFD700"
-             />
-             {/* Lid Explosion - Harder to position perfectly due to rotation
-                 We can wrap it in the same animated group logic?
-             */}
-           </group>
-        )}
+        {/* EXPLOSION PARTICLES REMOVED */}
 
-        {/* SOLID BOX (Hidden when exploding) */}
+        {/* SOLID BOX */}
         <animated.group 
             ref={groupRef} 
             onClick={handleClick} 
             position-y={emergeY}
             scale={scale}
-            visible={!isExploding}
         >
       {/* Light Burst and Particles */}
       {isOpen && (
