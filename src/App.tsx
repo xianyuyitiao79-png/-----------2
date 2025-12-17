@@ -97,17 +97,16 @@ function App() {
               <IntroGift onOpen={handleIntroOpen} />
           )}
           
-          {introState !== 'waiting' && (
-             <animated.group scale={treeScale}>
-                <SantaSleigh />
-                <Snow />
-                <Tree 
-                    formed={formed} 
-                    onToggle={() => setFormed(s => !s)} 
-                    gestureRotation={gestureRotation}
-                />
-             </animated.group>
-          )}
+          {/* Always render tree but control visibility/scale */}
+          <animated.group scale={treeScale} visible={introState !== 'waiting'}>
+            <SantaSleigh />
+            <Snow />
+            <Tree 
+                formed={formed} 
+                onToggle={() => setFormed(s => !s)} 
+                gestureRotation={gestureRotation}
+            />
+          </animated.group>
 
           <EffectComposer>
             <Bloom luminanceThreshold={0.8} mipmapBlur intensity={1.2} radius={0.4} />
