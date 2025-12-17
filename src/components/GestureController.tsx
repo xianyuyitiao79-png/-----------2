@@ -181,32 +181,30 @@ export function GestureController({ onGesture, onRotate }: GestureControllerProp
             )}
         </div>
 
-        {/* Content (Hidden when collapsed) */}
-        {!isCollapsed && (
-            <>
-                <div className="relative w-32 h-24 bg-black/80 rounded overflow-hidden mt-1">
-                    <video 
-                        ref={videoRef} 
-                        className="absolute top-0 left-0 w-full h-full object-cover opacity-50 -scale-x-100" 
-                        autoPlay 
-                        playsInline 
-                        muted
-                    />
-                    <canvas 
-                        ref={canvasRef}
-                        className="absolute top-0 left-0 w-full h-full object-cover -scale-x-100"
-                    />
-                </div>
-                <div className="text-[10px] text-gray-300 mt-2 space-y-1">
-                    <p>Left Hand (Scale):</p>
-                    <p className="pl-2">✊ Fist: <span className="text-red-400">Assemble</span></p>
-                    <p className="pl-2">🖐 Palm: <span className="text-emerald-400">Disperse</span></p>
-                    <div className="h-1" />
-                    <p>Right Hand (Rotate):</p>
-                    <p className="pl-2">👋 Tilt L/R: <span className="text-blue-400">Spin</span></p>
-                </div>
-            </>
-        )}
+        {/* Content (Always rendered to keep camera alive, hidden via CSS) */}
+        <div className={isCollapsed ? 'hidden' : 'block'}>
+            <div className="relative w-32 h-24 bg-black/80 rounded overflow-hidden mt-1">
+                <video 
+                    ref={videoRef} 
+                    className="absolute top-0 left-0 w-full h-full object-cover opacity-50 -scale-x-100" 
+                    autoPlay 
+                    playsInline 
+                    muted
+                />
+                <canvas 
+                    ref={canvasRef}
+                    className="absolute top-0 left-0 w-full h-full object-cover -scale-x-100"
+                />
+            </div>
+            <div className="text-[10px] text-gray-300 mt-2 space-y-1">
+                <p>Left Hand (Scale):</p>
+                <p className="pl-2">✊ Fist: <span className="text-red-400">Assemble</span></p>
+                <p className="pl-2">🖐 Palm: <span className="text-emerald-400">Disperse</span></p>
+                <div className="h-1" />
+                <p>Right Hand (Rotate):</p>
+                <p className="pl-2">👋 Tilt L/R: <span className="text-blue-400">Spin</span></p>
+            </div>
+        </div>
       </div>
     </div>
   )
