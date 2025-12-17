@@ -12,6 +12,7 @@ export function GestureController({ onGesture, onRotate }: GestureControllerProp
   const [recognizer, setRecognizer] = useState<GestureRecognizer | null>(null)
   const [webcamRunning, setWebcamRunning] = useState(false)
   const requestRef = useRef<number>(0)
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   // 1. Initialize Recognizer
   useEffect(() => {
@@ -162,30 +163,50 @@ export function GestureController({ onGesture, onRotate }: GestureControllerProp
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end pointer-events-none">
-      <div className="bg-black/50 p-2 rounded-lg backdrop-blur-sm border border-gold/30">
-        <h3 className="text-white text-xs mb-1 font-mono text-center">Gesture Control</h3>
-        <div className="relative w-32 h-24 bg-black/80 rounded overflow-hidden">
-            <video 
-                ref={videoRef} 
-                className="absolute top-0 left-0 w-full h-full object-cover opacity-50 -scale-x-100" 
-                autoPlay 
-                playsInline 
-                muted
-            />
-            <canvas 
-                ref={canvasRef}
-                className="absolute top-0 left-0 w-full h-full object-cover -scale-x-100"
-            />
+    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end pointer-events-auto">
+      <div className={`bg-black/50 rounded-lg backdrop-blur-sm border border-[#D4AF37]/30 transition-all duration-300 overflow-hidden ${isCollapsed ? 'w-auto h-auto' : 'p-2'}`}>
+        
+        {/* Header / Toggle Button */}
+        <div 
+          className="flex items-center justify-between cursor-pointer group"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+        >
+            <h3 className={`text-white text-xs font-mono select-none ${isCollapsed ? 'px-3 py-2' : 'mb-1 text-center w-full'}`}>
+                Gesture Control
+            </h3>
+            {!isCollapsed && (
+                <div className="text-[#D4AF37] opacity-50 text-[10px] group-hover:opacity-100 absolute right-2 top-2">
+                    ▼
+                </div>
+            )}
         </div>
-        <div className="text-[10px] text-gray-300 mt-1 space-y-1">
-            <p>Left Hand (Scale):</p>
-            <p className="pl-2">✊ Fist: <span className="text-red-400">Assemble</span></p>
-            <p className="pl-2">🖐 Palm: <span className="text-emerald-400">Disperse</span></p>
-            <div className="h-1" />
-            <p>Right Hand (Rotate):</p>
-            <p className="pl-2">👋 Tilt L/R: <span className="text-blue-400">Spin</span></p>
-        </div>
+
+        {/* Content (Hidden when collapsed) */}
+        {!isCollapsed && (
+            <>
+                <div className="relative w-32 h-24 bg-black/80 rounded overflow-hidden mt-1">
+                    <video 
+                        ref={videoRef} 
+                        className="absolute top-0 left-0 w-full h-full object-cover opacity-50 -scale-x-100" 
+                        autoPlay 
+                        playsInline 
+                        muted
+                    />
+                    <canvas 
+                        ref={canvasRef}
+                        className="absolute top-0 left-0 w-full h-full object-cover -scale-x-100"
+                    />
+                </div>
+                <div className="text-[10px] text-gray-300 mt-2 space-y-1">
+                    <p>Left Hand (Scale):</p>
+                    <p className="pl-2">✊ Fist: <span className="text-red-400">Assemble</span></p>
+                    <p className="pl-2">🖐 Palm: <span className="text-emerald-400">Disperse</span></p>
+                    <div className="h-1" />
+                    <p>Right Hand (Rotate):</p>
+                    <p className="pl-2">👋 Tilt L/R: <span className="text-blue-400">Spin</span></p>
+                </div>
+            </>
+        )}
       </div>
     </div>
   )
