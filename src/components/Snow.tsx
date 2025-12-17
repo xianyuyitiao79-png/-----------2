@@ -36,11 +36,13 @@ export function Snow() {
     uniforms: {
       uTime: { value: 0 },
       uColor: { value: new THREE.Color('#FFFFFF') }, // White
-      uHeight: { value: SNOW_HEIGHT }
+      uHeight: { value: SNOW_HEIGHT },
+      uMouse: { value: new THREE.Vector3(9999, 9999, 9999) } // Mouse world position
     },
     vertexShader: `
       uniform float uTime;
       uniform float uHeight;
+      uniform vec3 uMouse;
       attribute vec3 aRandom; // x: drift, y: speed, z: offset
       attribute float aSize;
       
@@ -65,6 +67,27 @@ export function Snow() {
         pos.x += sin(uTime * driftFreq + aRandom.z) * driftAmp;
         pos.z += cos(uTime * driftFreq * 0.8 + aRandom.z) * driftAmp;
         
+        // --- INTERACTIVE MOUSE REPULSION ---
+        // Calculate distance to mouse (in XZ plane mainly, but let's use 3D with cylinder influence)
+        // Since mouse is a ray, we might just want to repel from the mouse point projected at depth?
+        // Or better, just pass the mouse world position at z=0 plane or similar.
+        // Let's assume uMouse is the point in 3D space the mouse is hovering over (via raycaster).
+        
+        float dist = distance(pos, uMouse);
+        float radius = 8.0; // Influence radius
+        if (dist < radius) {
+            vec3 dir = normalize(pos - uMouse);
+            float force = (1.0 - dist / radius);
+            force = pow(force, 2.0) * 8.0; // Stronger push at center
+            
+            // Push away
+            pos += dir * force;
+            
+            // Also push up slightly to simulate "breeze"
+            pos.y += force * 0.5;
+        }
+        // -----------------------------------
+
         vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
         gl_Position = projectionMatrix * mvPosition;
         
@@ -97,9 +120,36 @@ export function Snow() {
     blending: THREE.AdditiveBlending
   }), [])
 
+  // Raycaster for mouse interaction
+  const raycaster = useRef(new THREE.Raycaster())
+  const mouse = useRef(new THREE.Vector2(9999, 9999))
+  
+  // Plane for raycasting (invisible plane facing camera)
+  // Or we can just calculate intersection with a virtual plane at z=0 or current depth
+  // Let's just create a virtual plane math
+  const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), [])
+  const target = useMemo(() => new THREE.Vector3(), [])
+
   useFrame((state) => {
     if (pointsRef.current) {
       material.uniforms.uTime.value = state.clock.elapsedTime
+      
+      // Update mouse position from state.pointer (-1 to 1)
+      raycaster.current.setFromCamera(state.pointer, state.camera)
+      
+      // Intersect with a plane at Z=0 (where the tree roughly is)
+      // or Z=10 closer to camera for snow?
+      // Snow is in volume. Let's pick a plane at z=0 for simplicity
+      raycaster.current.ray.intersectPlane(plane, target)
+      
+      if (target) {
+          // Smoothly verify target is valid number
+          if (!isNaN(target.x)) {
+            // Lerp for smooth movement of the "wind source"
+            const current = material.uniforms.uMouse.value
+            current.lerp(target, 0.1)
+          }
+      }
     }
   })
 
