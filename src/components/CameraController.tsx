@@ -13,7 +13,9 @@ export function CameraController({ introState }: CameraControllerProps) {
   useEffect(() => {
     if (introState === 'waiting') {
       // Start position looking at the gift
-      camera.position.set(0, 3, 15)
+      // Gift center is roughly at (0, 2.5, 0)
+      // To center it, camera should be level or slightly above, looking directly at it
+      camera.position.set(0, 2.5, 18) // Moved back slightly for better framing
       camera.lookAt(0, 2.5, 0)
     }
   }, [introState, camera])
