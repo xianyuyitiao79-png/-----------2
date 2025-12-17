@@ -16,9 +16,8 @@ import { Countdown } from './components/Countdown'
 import { IntroGift } from './components/IntroGift'
 import { CameraController } from './components/CameraController'
 import { IntroSnow } from './components/IntroSnow'
+import { SnowyGround } from './components/SnowyGround'
 import { useSpring, animated } from '@react-spring/three'
-
-import { WreathFrame } from './components/WreathFrame'
 
 function App() {
   const [formed, setFormed] = useState(false)
@@ -77,7 +76,6 @@ function App() {
         onRotate={handleRotate} 
       />
       <MusicPlayer />
-      <WreathFrame />
       
       <Canvas dpr={[1, 1.5]}>
         <color attach="background" args={['#050505']} />
@@ -104,6 +102,7 @@ function App() {
           <animated.group scale={treeScale} visible={true}>
             <SantaSleigh />
             <Snow />
+            <SnowyGround />
             <Tree 
                 formed={formed} 
                 onToggle={() => setFormed(s => !s)} 
