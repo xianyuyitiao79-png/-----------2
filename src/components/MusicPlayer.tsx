@@ -5,6 +5,11 @@ export function MusicPlayer() {
   const [volume, setVolume] = useState(0.5)
   const audioRef = useRef<HTMLAudioElement>(null)
 
+  // Get base path for assets
+  const base = import.meta.env.BASE_URL
+  const cleanBase = base.endsWith('/') ? base.slice(0, -1) : base
+  const musicPath = `${cleanBase}/music.mp3`
+
   useEffect(() => {
     if (audioRef.current) {
       if (playing) {
@@ -24,7 +29,7 @@ export function MusicPlayer() {
   return (
     <div className="fixed bottom-8 left-8 z-50 flex items-center gap-4 p-4 rounded-2xl border border-[#D4AF37]/30 bg-black/40 backdrop-blur-xl shadow-[0_0_20px_rgba(0,0,0,0.3)]">
       {/* Audio Element */}
-      <audio ref={audioRef} src="/music.mp3" loop preload="auto" />
+      <audio ref={audioRef} src={musicPath} loop preload="auto" />
 
       {/* Play/Pause Button */}
       <button
