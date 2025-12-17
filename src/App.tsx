@@ -47,11 +47,11 @@ function App() {
     // 1.0s: Lid opens & Burst (handled in IntroGift)
     // 1.2s: Disintegration starts
     // 1.5s: Camera moves in (CameraController)
-    // 4.0s: Fully dispersed & Camera inside, switch to finished
+    // 2.5s: Fully dispersed & Camera starts pulling back, switch to finished
     setTimeout(() => {
         setIntroState('finished')
         setFormed(true) // Ensure tree is formed immediately when finished
-    }, 4000)
+    }, 2500)
   }
 
   const handleGesture = (action: 'Assemble' | 'Disperse' | null) => {

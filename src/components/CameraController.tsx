@@ -20,33 +20,34 @@ export function CameraController({ introState }: CameraControllerProps) {
 
   useFrame((state, delta) => {
     if (introState === 'opening') {
-      // Move camera forward into the box center [0, 2.5, 0]
-      // We target a point slightly in front of the box center to avoid clipping initially
-      const target = new THREE.Vector3(0, 2.5, 0.5) // Deeper inside the box
-      // Smoothly interpolate current position to target
-      // Slower speed for "cinematic" feel
-      camera.position.lerp(target, delta * 0.8)
+      // Move camera closer to observe the explosion, but DO NOT enter the box
+      // Target position: slightly above and in front
+      const target = new THREE.Vector3(0, 4, 12) 
+      // Smoothly interpolate
+      camera.position.lerp(target, delta * 1.5)
       camera.lookAt(0, 2.5, 0)
     }
     
     if (introState === 'finished') {
-       // When finished, we want to ensure the camera is in a good position for the tree
-       // OrbitControls will enable, so we should be at a reasonable distance.
-       // We can smoothly pull back if we want, but since 'finished' happens after the burst,
-       // we can just snap to the tree view or lerp quickly.
+       // When finished, pull back to show the full tree
        
-       // Increase Z distance to 45 to comfortably fit the whole tree (height ~22 units)
-       // Center Y at 1 (midpoint of -10 to 12)
+       // Increase Z distance to 45 to comfortably fit the whole tree
+       // Center Y at 1
        const treeViewPos = new THREE.Vector3(0, 1, 45)
        
-       // Force update if camera is very far or in weird state
-       if (camera.position.z < 5) {
-          camera.position.copy(treeViewPos)
-          camera.lookAt(0, 1, 0)
-       } else if (camera.position.distanceTo(treeViewPos) > 0.5) {
-         camera.position.lerp(treeViewPos, delta * 2)
-         camera.lookAt(0, 1, 0) // Look at tree center
-       }
+       // Smoothly pull back (Zoom out effect)
+       // We removed the forced snap logic to allow for a cinematic pull-back
+       camera.position.lerp(treeViewPos, delta * 1.5)
+       
+       // Smoothly adjust lookAt target from box center (0, 2.5, 0) to tree center (0, 10, 0)
+       // Actually, (0, 1, 0) is the orbit target.
+       // Let's just look at (0, 8, 0) roughly center of tree? No, OrbitControls usually targets 0,0,0
+       // Let's look at 0,1,0
+       const currentLookAt = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).add(camera.position)
+       const targetLookAt = new THREE.Vector3(0, 1, 0)
+       
+       // Simple lookAt is fine as lerp updates position each frame
+       camera.lookAt(0, 1, 0) 
     }
   })
 
