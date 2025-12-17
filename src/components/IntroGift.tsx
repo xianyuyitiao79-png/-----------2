@@ -23,10 +23,10 @@ export function IntroGift({ onOpen }: IntroGiftProps) {
   const { lidRotation, scale, emergeY, ribbonScale, lidLift } = useSpring({
     lidRotation: isOpen ? -Math.PI / 1.1 : 0,
     lidLift: isOpen ? 0 : 0.1, 
-    scale: isOpen ? 1 : 1, 
-    emergeY: -2, // Changed from -4 to -2
+    scale: isOpen ? 1.5 : 1.5, // Scale up to 1.5x
+    emergeY: -4.5, // Lower it slightly more to accommodate larger size
     ribbonScale: isOpen ? 0 : 1,
-    from: { emergeY: -2 }, // Start at -2
+    from: { emergeY: -4.5, scale: 1.5 }, 
     config: (key) => {
         if (key === 'lidRotation') return { mass: 1, tension: 60, friction: 18, delay: 500 }
         if (key === 'ribbonScale') return { duration: 400 }

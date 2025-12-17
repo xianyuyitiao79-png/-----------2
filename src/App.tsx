@@ -16,7 +16,6 @@ import { Countdown } from './components/Countdown'
 import { IntroGift } from './components/IntroGift'
 import { CameraController } from './components/CameraController'
 import { IntroSnow } from './components/IntroSnow'
-import { SnowyGround } from './components/SnowyGround'
 import { useSpring, animated } from '@react-spring/three'
 
 function App() {
@@ -94,15 +93,12 @@ function App() {
           {/* Only show bright environment when finished, or keep it dim? Let's use it for reflections but hidden bg */}
           <Environment preset="lobby" background={false} />
           
-          {introState !== 'finished' && (
-              <IntroGift onOpen={handleIntroOpen} />
-          )}
+          <IntroGift onOpen={handleIntroOpen} />
           
           {/* Always render tree but control visibility/scale */}
           <animated.group scale={treeScale} visible={true}>
             <SantaSleigh />
             <Snow />
-            <SnowyGround />
             <Tree 
                 formed={formed} 
                 onToggle={() => setFormed(s => !s)} 
