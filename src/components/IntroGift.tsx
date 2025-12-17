@@ -26,7 +26,7 @@ export function IntroGift({ onOpen }: IntroGiftProps) {
     scale: isOpen ? 1 : 1, 
     emergeY: 0, 
     ribbonScale: isOpen ? 0 : 1,
-    from: { emergeY: -10 },
+    from: { emergeY: 0 }, // Changed from -10 to 0 to fix position
     config: (key) => {
         if (key === 'lidRotation') return { mass: 1, tension: 60, friction: 18, delay: 500 }
         if (key === 'ribbonScale') return { duration: 400 }
