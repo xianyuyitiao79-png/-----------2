@@ -18,6 +18,8 @@ import { CameraController } from './components/CameraController'
 import { IntroSnow } from './components/IntroSnow'
 import { useSpring, animated } from '@react-spring/three'
 
+import { WreathFrame } from './components/WreathFrame'
+
 function App() {
   const [formed, setFormed] = useState(false)
   const [gestureRotation, setGestureRotation] = useState(0)
@@ -75,6 +77,7 @@ function App() {
         onRotate={handleRotate} 
       />
       <MusicPlayer />
+      <WreathFrame />
       
       <Canvas dpr={[1, 1.5]}>
         <color attach="background" args={['#050505']} />
