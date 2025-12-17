@@ -98,7 +98,7 @@ function App() {
           )}
           
           {/* Always render tree but control visibility/scale */}
-          <animated.group scale={treeScale} visible={introState !== 'waiting'}>
+          <animated.group scale={treeScale} visible={true}>
             <SantaSleigh />
             <Snow />
             <Tree 
