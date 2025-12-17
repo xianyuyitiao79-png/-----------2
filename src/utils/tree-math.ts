@@ -144,7 +144,9 @@ export function generatePhotoData(count: number) {
     
     // We want photos to be clearly visible, maybe spiraling up the tree
     // Height from bottom to 80% up
-    const y = (i / count) * (TREE_HEIGHT * 0.8)
+    // Start higher to avoid hitting the floor/gift box
+    const startY = 4.0 
+    const y = startY + (i / count) * (TREE_HEIGHT * 0.75)
     const normalizedH = y / TREE_HEIGHT
     
     // Calculate radius at this height (outer surface)
