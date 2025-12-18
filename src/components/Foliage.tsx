@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { shaderMaterial } from '@react-three/drei'
 import { extend, ReactThreeFiber } from '@react-three/fiber'
-import { FOLIAGE_COUNT, generateFoliageData } from '../utils/tree-math'
+import { FOLIAGE_COUNT, generateFoliageDataWithGiftStart } from '../utils/tree-math'
 
 // Custom Shader Material
 const FoliageMaterial = shaderMaterial(
@@ -158,10 +158,10 @@ interface FoliageProps {
 export function Foliage({ progressRef, formed }: FoliageProps) {
   const materialRef = useRef<THREE.ShaderMaterial>(null)
   
-  const { chaosPositions, targetPositions, colors } = useMemo(() => generateFoliageData(FOLIAGE_COUNT), [])
+  const { chaosPositions, targetPositions, colors } = useMemo(() => generateFoliageDataWithGiftStart(FOLIAGE_COUNT), [])
   
-  useFrame((state) => {
-    if (materialRef.current) {
+  // Animate progress
+  useFrame((state) => { if (materialRef.current) {
       materialRef.current.uniforms.uTime.value = state.clock.elapsedTime
       // Directly access ref to avoid React render cycle lag
       // Also remove the double-lerp, just use the value from Tree which is already lerped
