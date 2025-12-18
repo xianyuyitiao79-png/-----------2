@@ -119,6 +119,7 @@ function App() {
           </EffectComposer>
           
           <OrbitControls 
+            enabled={introState === 'finished' && !memoryMode}
             enableRotate={introState === 'finished' && !memoryMode} 
             enableZoom={introState === 'finished' && !memoryMode} 
             enablePan={false} 
