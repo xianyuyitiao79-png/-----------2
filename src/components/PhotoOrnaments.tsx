@@ -144,7 +144,7 @@ function PhotoItem({ data, texture, progressRef, easeInOutCubic, isActive, onSel
         
         const cx = Math.sin(currentAngle) * radius
         const cz = Math.cos(currentAngle) * radius
-        const cy = -5 // Changed from 2 to -5 to move circle down
+        const cy = -1.5 // Changed from -5 to -1.5 (intermediate between 2 and -5)
         
         const memoryPos = new THREE.Vector3(cx, cy, cz)
 
