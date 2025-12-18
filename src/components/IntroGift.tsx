@@ -24,9 +24,9 @@ export function IntroGift({ onOpen }: IntroGiftProps) {
     lidRotation: isOpen ? -Math.PI / 1.1 : 0,
     lidLift: isOpen ? 0 : 0.1, 
     scale: isOpen ? 1 : 1, 
-    emergeY: -2, // Changed from -4 to -2
+    emergeY: -1, // Changed from -2 to -1 to move up slightly
     ribbonScale: isOpen ? 0 : 1,
-    from: { emergeY: -2 }, // Start at -2
+    from: { emergeY: -1 }, // Start at -1
     config: (key) => {
         if (key === 'lidRotation') return { mass: 1, tension: 60, friction: 18, delay: 500 }
         if (key === 'ribbonScale') return { duration: 400 }
