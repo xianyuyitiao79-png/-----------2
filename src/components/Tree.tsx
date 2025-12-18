@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useDrag } from '@use-gesture/react'
 import { useControls, button } from 'leva'
@@ -8,6 +8,7 @@ import { Ornaments } from './Ornaments'
 import { Star } from './Star'
 import { PhotoOrnaments } from './PhotoOrnaments'
 import { SpiralLights } from './SpiralLights'
+import { LoveLetter } from './LoveLetter'
 
 export interface TreeProps {
   formed: boolean
@@ -17,6 +18,7 @@ export interface TreeProps {
 
 export function Tree({ formed, onToggle, gestureRotation = 0 }: TreeProps) {
   const groupRef = useRef<THREE.Group>(null)
+  const [showLetter, setShowLetter] = useState(false)
   
   // Physics state for rotation
   const rotationVelocity = useRef(0)
@@ -101,8 +103,11 @@ export function Tree({ formed, onToggle, gestureRotation = 0 }: TreeProps) {
       <Foliage progressRef={progressRef} formed={formed} />
       <Ornaments progressRef={progressRef} formed={formed} />
       <SpiralLights progressRef={progressRef} formed={formed} />
+   <Star progressRef={progressRef} formed={formed} onClick={() => setShowLetter(true)} />
+      
       <PhotoOrnaments progressRef={progressRef} formed={formed} />
-      <Star progressRef={progressRef} formed={formed} />
+      
+      <LoveLetter isOpen={showLetter} onClose={() => setShowLetter(false)} />
     </group>
   )
 }

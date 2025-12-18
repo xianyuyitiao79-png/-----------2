@@ -6,9 +6,10 @@ import { TREE_HEIGHT } from '../utils/tree-math'
 interface StarProps {
   progressRef: React.MutableRefObject<number>
   formed: boolean
+  onClick?: () => void
 }
 
-export function Star({ progressRef, formed }: StarProps) {
+export function Star({ progressRef, formed, onClick }: StarProps) {
   const meshRef = useRef<THREE.Mesh>(null)
   
   // Create a 5-pointed star shape
@@ -84,7 +85,16 @@ export function Star({ progressRef, formed }: StarProps) {
   })
 
   return (
-    <mesh ref={meshRef} geometry={geometry}>
+    <mesh 
+      ref={meshRef} 
+      geometry={geometry}
+      onClick={(e) => {
+        e.stopPropagation()
+        onClick?.()
+      }}
+      onPointerOver={() => document.body.style.cursor = 'pointer'}
+      onPointerOut={() => document.body.style.cursor = 'auto'}
+    >
       <meshStandardMaterial 
         color="#FFD700" 
         emissive="#FFD700" 
