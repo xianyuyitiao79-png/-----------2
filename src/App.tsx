@@ -140,7 +140,7 @@ function App() {
         
         <div className="flex flex-col gap-4 items-end">
           <button 
-            className="pointer-events-auto group relative px-8 py-3 rounded-full border border-[#D4AF37]/50 bg-black/40 backdrop-blur-xl text-[#D4AF37] font-serif text-lg tracking-widest uppercase hover:bg-[#D4AF37]/10 hover:border-[#D4AF37] hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all duration-500 overflow-hidden w-64"
+            className="pointer-events-auto group relative w-64 h-14 rounded-full border border-[#D4AF37]/50 bg-black/40 backdrop-blur-xl text-[#D4AF37] font-serif text-lg tracking-widest uppercase hover:bg-[#D4AF37]/10 hover:border-[#D4AF37] hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all duration-500 overflow-hidden flex items-center justify-center"
             onClick={() => setFormed(s => !s)}
           >
             <span className="relative z-10">{formed ? 'Disperse Tree' : 'Assemble Tree'}</span>
@@ -148,7 +148,7 @@ function App() {
           </button>
 
           <button 
-            className={`pointer-events-auto group relative px-8 py-3 rounded-full border ${memoryMode ? 'border-[#D4AF37] bg-[#D4AF37]/20' : 'border-[#D4AF37]/50 bg-black/40'} backdrop-blur-xl text-[#D4AF37] font-serif text-lg tracking-widest uppercase hover:bg-[#D4AF37]/10 hover:border-[#D4AF37] hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all duration-500 overflow-hidden w-64`}
+            className={`pointer-events-auto group relative w-64 h-14 rounded-full border ${memoryMode ? 'border-[#D4AF37] bg-[#D4AF37]/20' : 'border-[#D4AF37]/50 bg-black/40'} backdrop-blur-xl text-[#D4AF37] font-serif text-lg tracking-widest uppercase hover:bg-[#D4AF37]/10 hover:border-[#D4AF37] hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all duration-500 overflow-hidden flex items-center justify-center`}
             onClick={() => setMemoryMode(s => !s)}
           >
             <span className="relative z-10">{memoryMode ? 'Exit Journey' : 'Memory Journey'}</span>
