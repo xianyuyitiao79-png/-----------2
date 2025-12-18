@@ -138,21 +138,23 @@ function App() {
           <Countdown />
         </div>
         
-        <button 
-          className="pointer-events-auto group relative px-8 py-3 rounded-full border border-[#D4AF37]/50 bg-black/40 backdrop-blur-xl text-[#D4AF37] font-serif text-lg tracking-widest uppercase hover:bg-[#D4AF37]/10 hover:border-[#D4AF37] hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all duration-500 overflow-hidden"
-          onClick={() => setFormed(s => !s)}
-        >
-          <span className="relative z-10">{formed ? 'Disperse Tree' : 'Assemble Tree'}</span>
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4AF37]/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
-        </button>
+        <div className="flex flex-col gap-4 items-end">
+          <button 
+            className="pointer-events-auto group relative px-8 py-3 rounded-full border border-[#D4AF37]/50 bg-black/40 backdrop-blur-xl text-[#D4AF37] font-serif text-lg tracking-widest uppercase hover:bg-[#D4AF37]/10 hover:border-[#D4AF37] hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all duration-500 overflow-hidden w-64"
+            onClick={() => setFormed(s => !s)}
+          >
+            <span className="relative z-10">{formed ? 'Disperse Tree' : 'Assemble Tree'}</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4AF37]/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+          </button>
 
-        <button 
-          className={`pointer-events-auto group relative px-8 py-3 rounded-full border ${memoryMode ? 'border-[#D4AF37] bg-[#D4AF37]/20' : 'border-[#D4AF37]/50 bg-black/40'} backdrop-blur-xl text-[#D4AF37] font-serif text-lg tracking-widest uppercase hover:bg-[#D4AF37]/10 hover:border-[#D4AF37] hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all duration-500 overflow-hidden ml-4`}
-          onClick={() => setMemoryMode(s => !s)}
-        >
-          <span className="relative z-10">{memoryMode ? 'Exit Journey' : 'Memory Journey'}</span>
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4AF37]/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
-        </button>
+          <button 
+            className={`pointer-events-auto group relative px-8 py-3 rounded-full border ${memoryMode ? 'border-[#D4AF37] bg-[#D4AF37]/20' : 'border-[#D4AF37]/50 bg-black/40'} backdrop-blur-xl text-[#D4AF37] font-serif text-lg tracking-widest uppercase hover:bg-[#D4AF37]/10 hover:border-[#D4AF37] hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all duration-500 overflow-hidden w-64`}
+            onClick={() => setMemoryMode(s => !s)}
+          >
+            <span className="relative z-10">{memoryMode ? 'Exit Journey' : 'Memory Journey'}</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4AF37]/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+          </button>
+        </div>
       </div>
       {/* Love Letter Overlay */}
       <LoveLetter isOpen={showLetter} onClose={() => setShowLetter(false)} />
