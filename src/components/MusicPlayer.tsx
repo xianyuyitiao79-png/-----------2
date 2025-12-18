@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 
-export function MusicPlayer() {
+interface MusicPlayerProps {
+  memoryMode?: boolean
+}
+
+export function MusicPlayer({ memoryMode = false }: MusicPlayerProps) {
   const [playing, setPlaying] = useState(false)
   const [volume, setVolume] = useState(0.5)
   const audioRef = useRef<HTMLAudioElement>(null)
@@ -22,9 +26,15 @@ export function MusicPlayer() {
 
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.volume = volume
+      // If memory mode, increase volume slightly (but respect user setting)
+      // Let's just boost it by 20% relative to user setting, capped at 1
+      const effectiveVolume = memoryMode ? Math.min(1, volume * 1.3) : volume
+      
+      // Smooth transition
+      // We can't animate this easily without a loop, but direct assignment is okay
+      audioRef.current.volume = effectiveVolume
     }
-  }, [volume])
+  }, [volume, memoryMode])
 
   return (
     <div className="fixed bottom-8 left-8 z-50 flex items-center gap-4 p-4 rounded-2xl border border-[#D4AF37]/30 bg-black/40 backdrop-blur-xl shadow-[0_0_20px_rgba(0,0,0,0.3)]">

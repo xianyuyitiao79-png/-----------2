@@ -4,9 +4,10 @@ import * as THREE from 'three'
 
 interface CameraControllerProps {
   introState: 'waiting' | 'opening' | 'finished'
+  memoryMode: boolean
 }
 
-export function CameraController({ introState }: CameraControllerProps) {
+export function CameraController({ introState, memoryMode }: CameraControllerProps) {
   const { camera } = useThree()
   // Store initial position to avoid jumping if needed, but we'll hardcode for cinematic feel
   
@@ -29,6 +30,23 @@ export function CameraController({ introState }: CameraControllerProps) {
     }
     
     if (introState === 'finished') {
+       // Memory Mode Logic overrides standard finished state
+       if (memoryMode) {
+          // Move camera to view the heart formation
+          // Heart is at z=20, centered.
+          // Camera should be at z=35-40, y=0?
+          const memoryViewPos = new THREE.Vector3(0, 0, 42)
+          camera.position.lerp(memoryViewPos, delta * 1.0) // Slow drift
+          
+          // Look at center of heart (0, 2, 20)
+          const lookTarget = new THREE.Vector3(0, 2, 20)
+          const currentLook = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).add(camera.position)
+          currentLook.lerp(lookTarget, delta * 2)
+          camera.lookAt(currentLook)
+          
+          return // Skip normal logic
+       }
+
        // When finished, pull back to show the full tree
        
        // Increase Z distance to 45 to comfortably fit the whole tree

@@ -7,11 +7,12 @@ import { generatePhotoData } from '../utils/tree-math'
 interface PhotoOrnamentsProps {
   progressRef: React.MutableRefObject<number>
   formed: boolean
+  memoryMode: boolean // New prop
 }
 
 const PHOTO_COUNT = 12
 
-export function PhotoOrnaments({ progressRef, formed }: PhotoOrnamentsProps) {
+export function PhotoOrnaments({ progressRef, formed, memoryMode }: PhotoOrnamentsProps) {
   // Load textures
   // We assume photos are named 1.jpg to 12.jpg
   const photoPaths = useMemo(() => {
@@ -35,6 +36,17 @@ export function PhotoOrnaments({ progressRef, formed }: PhotoOrnamentsProps) {
   // Track active photo for fullscreen
   const [activePhoto, setActivePhoto] = useState<number | null>(null)
   
+  // Auto-play logic for Memory Mode
+  const [memoryIndex, setMemoryIndex] = useState(0)
+  
+  useFrame((state) => {
+    if (memoryMode) {
+        // Auto-cycle every 5 seconds
+        const index = Math.floor(state.clock.elapsedTime / 5) % PHOTO_COUNT
+        setMemoryIndex(index)
+    }
+  })
+
   return (
     <group>
       {photos.map((data, i) => (
@@ -45,6 +57,10 @@ export function PhotoOrnaments({ progressRef, formed }: PhotoOrnamentsProps) {
             progressRef={progressRef} 
             easeInOutCubic={easeInOutCubic}
             isActive={activePhoto === i}
+            isMemoryMode={memoryMode}
+            isMemoryFocus={memoryMode && memoryIndex === i}
+            memoryIndex={i}
+            totalPhotos={PHOTO_COUNT}
             onSelect={() => setActivePhoto(activePhoto === i ? null : i)}
         />
       ))}
@@ -61,13 +77,14 @@ export function PhotoOrnaments({ progressRef, formed }: PhotoOrnamentsProps) {
   )
 }
 
-function PhotoItem({ data, texture, progressRef, easeInOutCubic, isActive, onSelect }: any) {
+function PhotoItem({ data, texture, progressRef, easeInOutCubic, isActive, onSelect, isMemoryMode, isMemoryFocus, memoryIndex, totalPhotos }: any) {
     const meshRef = useRef<THREE.Group>(null)
     const targetRef = useRef(new THREE.Vector3())
     const lookAtRef = useRef(new THREE.Vector3())
     
     // Animation state for click
     const activeProgress = useRef(0)
+    const memoryProgress = useRef(0)
     
     // Spiral logic helper
     const rotateY = (vec: THREE.Vector3, angle: number) => {
@@ -85,6 +102,10 @@ function PhotoItem({ data, texture, progressRef, easeInOutCubic, isActive, onSel
         // Update active transition
         activeProgress.current = THREE.MathUtils.lerp(activeProgress.current, isActive ? 1 : 0, delta * 5)
         const activeP = activeProgress.current
+
+        // Update memory transition
+        memoryProgress.current = THREE.MathUtils.lerp(memoryProgress.current, isMemoryMode ? 1 : 0, delta * 2) // Slow transition
+        const memP = memoryProgress.current
         
         const t = state.clock.elapsedTime
         // const p = easeInOutCubic(progressRef.current)
@@ -111,77 +132,90 @@ function PhotoItem({ data, texture, progressRef, easeInOutCubic, isActive, onSel
         treePos.y += Math.sin(t * 1.5 + data.id) * 0.2
         
         // Swaying Rotation (When on tree)
-        // Rotate around Z axis to swing left/right
-        // Pivot is top center (handled by geometry offset or just rotation?)
-        // Currently geometry is centered. We need to apply rotation before translation? 
-        // No, we are setting position.
-        // If we rotate meshRef, it rotates around its center.
-        // To swing from top, we need to move the geometry down, or use a parent pivot.
-        // Let's just apply a Z-rotation. It will look like swinging from center, which is okay-ish,
-        // but swinging from top is better.
-        // Let's add a Sway Group inside.
-        
-        // Actually, let's just add the sway rotation to the lookAt logic.
-        // But lookAt overwrites rotation.
-        
-        // We can add the sway to the Z rotation AFTER lookAt.
-        // Sway amplitude: 3-5 degrees = ~0.05 to 0.08 radians.
-        if (!isActive) {
+        if (!isActive && !isMemoryMode) {
              const sway = Math.sin(t * 2 + data.id) * 0.08 * p // Sway only when formed
              meshRef.current.rotation.z += sway
         }
-        // Get camera position and move forward
+
+        // --- MEMORY MODE LOGIC ---
+        // Heart Shape Calculation
+        // Heart curve: x = 16sin^3(t), y = 13cos(t)-5cos(2t)-2cos(3t)-cos(4t)
+        // Spread photos along this curve
+        const angleStep = (Math.PI * 2) / totalPhotos
+        // Offset angle so top is center?
+        const angle = memoryIndex * angleStep - Math.PI / 2
+        
+        // Normalized Heart
+        const hx = 16 * Math.pow(Math.sin(angle), 3)
+        const hy = 13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle)
+        
+        // Scale down to fit screen (approx range -16 to 16 -> scale by 0.5 -> -8 to 8)
+        const memoryPos = new THREE.Vector3(hx * 0.8, hy * 0.8 + 2, 20) // Bring closer (z=20)
+        
+        // If focused in memory mode, bring even closer
+        if (isMemoryFocus) {
+            memoryPos.z += 5
+            memoryPos.multiplyScalar(1.1) // Expand slightly
+        }
+
+        // --- FINAL POSITION MIXING ---
+        
+        // Get camera position and move forward (for Active Click Mode)
         const camPos = state.camera.position.clone()
         const camDir = new THREE.Vector3(0, 0, -1).applyQuaternion(state.camera.quaternion)
-        const activeTarget = camPos.clone().add(camDir.multiplyScalar(10)) // 10 units in front of camera
+        const activeTarget = camPos.clone().add(camDir.multiplyScalar(10)) 
         
-        // 3. Interpolate between Tree and Active
-        // Use a smooth curve for the transition
-        const smoothActive = easeInOutCubic(activeP)
-        meshRef.current.position.lerpVectors(treePos, activeTarget, smoothActive)
+        // Mix: Tree -> Memory -> Active
+        // First mix Tree and Memory based on memP
+        const currentBasePos = new THREE.Vector3().lerpVectors(treePos, memoryPos, memP)
         
-        // 4. Rotation Logic
-        // Tree Mode: Face Outward from Center (0,y,0)
-        // Active Mode: Face Camera
+        // Then mix with Active Click (Click overrides everything)
+        // Actually, if memory mode is on, we disable click active mode usually, or let click override memory
+        // Let's assume click overrides memory.
+        meshRef.current.position.lerpVectors(currentBasePos, activeTarget, activeP)
+        
+        
+        // --- ROTATION MIXING ---
+        // Tree: Face Center (Rotated 180)
+        // Memory: Face Camera (0)
+        // Active: Face Camera (0)
         
         // Calculate Tree Look Target (Center)
         const treeLook = new THREE.Vector3(0, meshRef.current.position.y, 0)
-        // Calculate Active Look Target (Camera)
+        // Calculate Active/Memory Look Target (Camera)
         const activeLook = state.camera.position.clone()
         
         // Interpolate look target
-        lookAtRef.current.lerpVectors(treeLook, activeLook, smoothActive)
+        // If memP > 0 or activeP > 0, we start looking at camera
+        const lookAtCameraWeight = Math.max(memP, activeP)
+        lookAtRef.current.lerpVectors(treeLook, activeLook, lookAtCameraWeight)
         
         meshRef.current.lookAt(lookAtRef.current)
-        
-        // Fix rotation: 
-        // When looking at center (Tree Mode), we need to rotate 180 (PI) to face outward.
-        // When looking at camera (Active Mode), we don't need rotation (plane faces +Z).
-        // So we lerp the extra rotation from PI to 0.
-        // Wait, if it's upside down, we might need to check the up vector.
-        // Or simply, lookAt might be flipping it if it passes through zenith.
-        // Let's force up vector to be (0,1,0)
         meshRef.current.up.set(0, 1, 0)
         
-        meshRef.current.rotateY(Math.PI * (1 - smoothActive))
+        // Fix Y rotation (Tree needs 180 flip to face out, Camera needs 0)
+        // So we rotate by PI * (1 - weight)
+        meshRef.current.rotateY(Math.PI * (1 - lookAtCameraWeight))
         
-        // 5. Scale Logic
-        // Tree Mode: 1.0
-        // Active Mode: 3.0 (Big display)
-        // Also add a spin effect during transition?
         
+        // --- SCALE LOGIC ---
         const baseScale = 1.0
-        const targetScale = 3.0
-        const currentScale = THREE.MathUtils.lerp(baseScale, targetScale, smoothActive)
+        const memoryScale = isMemoryFocus ? 2.5 : 1.5 // Focus big, others med
+        const activeScale = 3.0
+        
+        // Mix scales
+        let currentScale = THREE.MathUtils.lerp(baseScale, memoryScale, memP)
+        currentScale = THREE.MathUtils.lerp(currentScale, activeScale, activeP)
+        
         meshRef.current.scale.setScalar(currentScale)
         
-        // Extra spin during transition
-        // User wants "Rotate around Z axis" (Spinning like a wheel)
+        // Opacity/Fade for non-focused memory items?
+        // We can't easily fade opaque materials without transparency.
+        // But we can scale them down more? Done above.
+        
+        // Extra spin active
         if (isActive) {
-             // Continuous slow spin around Z axis (like a propeller)
              meshRef.current.rotation.z = t * 0.5 
-             
-             // Plus a little bit of Y sway for 3D feel
              meshRef.current.rotation.y += Math.sin(t * 0.5) * 0.1
         }
     })

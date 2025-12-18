@@ -14,9 +14,10 @@ export interface TreeProps {
   onToggle: () => void
   onStarClick?: () => void
   gestureRotation?: number // -1 to 1 (0 is neutral)
+  memoryMode: boolean
 }
 
-export function Tree({ formed, onToggle, onStarClick, gestureRotation = 0 }: TreeProps) {
+export function Tree({ formed, onToggle, onStarClick, gestureRotation = 0, memoryMode }: TreeProps) {
   const groupRef = useRef<THREE.Group>(null)
   
   // Physics state for rotation
@@ -102,7 +103,7 @@ export function Tree({ formed, onToggle, onStarClick, gestureRotation = 0 }: Tre
       <Foliage progressRef={progressRef} formed={formed} />
       <Ornaments progressRef={progressRef} formed={formed} />
       <SpiralLights progressRef={progressRef} formed={formed} />
-      <PhotoOrnaments progressRef={progressRef} formed={formed} />
+      <PhotoOrnaments progressRef={progressRef} formed={formed} memoryMode={memoryMode} />
       <Star progressRef={progressRef} formed={formed} onClick={onStarClick} />
     </group>
   )
