@@ -36,16 +36,8 @@ export function PhotoOrnaments({ progressRef, formed, memoryMode }: PhotoOrnamen
   // Track active photo for fullscreen
   const [activePhoto, setActivePhoto] = useState<number | null>(null)
   
-  // Auto-play logic for Memory Mode
-  const [memoryIndex, setMemoryIndex] = useState(0)
-  
-  useFrame((state) => {
-    if (memoryMode) {
-        // Auto-cycle every 5 seconds
-        const index = Math.floor(state.clock.elapsedTime / 5) % PHOTO_COUNT
-        setMemoryIndex(index)
-    }
-  })
+  // Use ref for rotation to avoid re-renders causing stutter
+  const rotationRef = useRef(0)
 
   return (
     <group>
@@ -58,9 +50,10 @@ export function PhotoOrnaments({ progressRef, formed, memoryMode }: PhotoOrnamen
             easeInOutCubic={easeInOutCubic}
             isActive={activePhoto === i}
             isMemoryMode={memoryMode}
-            isMemoryFocus={memoryMode && memoryIndex === i}
+            isMemoryFocus={memoryMode && false} // Disable focus zoom for circle mode
             memoryIndex={i}
             totalPhotos={PHOTO_COUNT}
+            rotationRef={rotationRef}
             onSelect={() => setActivePhoto(activePhoto === i ? null : i)}
         />
       ))}
@@ -77,7 +70,7 @@ export function PhotoOrnaments({ progressRef, formed, memoryMode }: PhotoOrnamen
   )
 }
 
-function PhotoItem({ data, texture, progressRef, easeInOutCubic, isActive, onSelect, isMemoryMode, isMemoryFocus, memoryIndex, totalPhotos }: any) {
+function PhotoItem({ data, texture, progressRef, easeInOutCubic, isActive, onSelect, isMemoryMode, isMemoryFocus, memoryIndex, totalPhotos, rotationRef }: any) {
     const meshRef = useRef<THREE.Group>(null)
     const targetRef = useRef(new THREE.Vector3())
     const lookAtRef = useRef(new THREE.Vector3())
@@ -137,26 +130,23 @@ function PhotoItem({ data, texture, progressRef, easeInOutCubic, isActive, onSel
              meshRef.current.rotation.z += sway
         }
 
-        // --- MEMORY MODE LOGIC ---
-        // Heart Shape Calculation
-        // Heart curve: x = 16sin^3(t), y = 13cos(t)-5cos(2t)-2cos(3t)-cos(4t)
-        // Spread photos along this curve
-        const angleStep = (Math.PI * 2) / totalPhotos
-        // Offset angle so top is center?
-        const angle = memoryIndex * angleStep - Math.PI / 2
+        // --- MEMORY MODE LOGIC: ROTATING CIRCLE ---
         
-        // Normalized Heart
-        const hx = 16 * Math.pow(Math.sin(angle), 3)
-        const hy = 13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle)
-        
-        // Scale down to fit screen (approx range -16 to 16 -> scale by 0.5 -> -8 to 8)
-        const memoryPos = new THREE.Vector3(hx * 0.8, hy * 0.8 + 2, 20) // Bring closer (z=20)
-        
-        // If focused in memory mode, bring even closer
-        if (isMemoryFocus) {
-            memoryPos.z += 5
-            memoryPos.multiplyScalar(1.1) // Expand slightly
+        // Update global rotation if first item (hacky but efficient)
+        if (memoryIndex === 0 && isMemoryMode) {
+             rotationRef.current += delta * 0.2 // Rotation speed
         }
+
+        // Circle Calculation
+        const radius = 18 // Distance from center
+        const angleStep = (Math.PI * 2) / totalPhotos
+        const currentAngle = memoryIndex * angleStep + rotationRef.current
+        
+        const cx = Math.sin(currentAngle) * radius
+        const cz = Math.cos(currentAngle) * radius
+        const cy = 2 // Height
+        
+        const memoryPos = new THREE.Vector3(cx, cy, cz)
 
         // --- FINAL POSITION MIXING ---
         

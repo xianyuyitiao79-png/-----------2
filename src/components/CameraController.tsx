@@ -32,14 +32,13 @@ export function CameraController({ introState, memoryMode }: CameraControllerPro
     if (introState === 'finished') {
        // Memory Mode Logic overrides standard finished state
        if (memoryMode) {
-          // Move camera to view the heart formation
-          // Heart is at z=20, centered.
-          // Camera should be at z=35-40, y=0?
-          const memoryViewPos = new THREE.Vector3(0, 0, 42)
+          // Move camera to view the circle formation
+          // Slightly higher and further back to see the ring
+          const memoryViewPos = new THREE.Vector3(0, 10, 45)
           camera.position.lerp(memoryViewPos, delta * 1.0) // Slow drift
           
-          // Look at center of heart (0, 2, 20)
-          const lookTarget = new THREE.Vector3(0, 2, 20)
+          // Look at center of tree
+          const lookTarget = new THREE.Vector3(0, 4, 0)
           const currentLook = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).add(camera.position)
           currentLook.lerp(lookTarget, delta * 2)
           camera.lookAt(currentLook)
