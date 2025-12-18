@@ -33,12 +33,18 @@ export function CameraController({ introState, memoryMode }: CameraControllerPro
        // Memory Mode Logic overrides standard finished state
        if (memoryMode) {
           // Move camera to view the circle formation
-          // Slightly higher and further back to see the ring
-          const memoryViewPos = new THREE.Vector3(0, 10, 45)
-          camera.position.lerp(memoryViewPos, delta * 1.0) // Slow drift
+          // Match standard tree view position to avoid jump
+          // Standard tree view is (0, 1, 45)
+          // We can just stay there, or move slightly up.
+          // Let's stay closer to original but maybe just tilt up.
+          const memoryViewPos = new THREE.Vector3(0, 1, 45) // Same as tree view
+          camera.position.lerp(memoryViewPos, delta * 1.0)
           
-          // Look at center of tree
-          const lookTarget = new THREE.Vector3(0, 4, 0)
+          // Look at center of tree (0, 4, 0)
+          // Standard look is (0, 1, 0)
+          // Shifting look target causes rotation jump.
+          // Let's keep look target consistent (0, 1, 0) or smooth transition.
+          const lookTarget = new THREE.Vector3(0, 1, 0) // Same as tree view
           const currentLook = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).add(camera.position)
           currentLook.lerp(lookTarget, delta * 2)
           camera.lookAt(currentLook)
