@@ -82,9 +82,11 @@ export function LoveLetter({ isOpen, onClose }: LoveLetterProps) {
                     <TypewriterText 
                       text={[
                         "To my dearest,",
-                        "May this Christmas bring you as much joy",
-                        "as you have brought into my life.",
+                        "May this Christmas hold all the warmth",
+                        "you bring into my life.",
+                        " ",
                         "You are my brightest star.",
+                        " ",
                         "Forever yours,"
                       ]} 
                     />

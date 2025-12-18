@@ -128,65 +128,6 @@ export function generateFoliageData(count: number) {
   return { chaosPositions, targetPositions, colors }
 }
 
-// Add Gift Box Shape Logic
-export function randomPointInGiftBox(out: THREE.Vector3) {
-  // Gift box dimensions: 5 x 5 x 5 (from IntroGift.tsx)
-  // Position: Centered at y = -2 (from recent change)
-  // Range: x: [-2.5, 2.5], y: [-4.5, 0.5], z: [-2.5, 2.5]
-  
-  const width = 5
-  const height = 5
-  const depth = 5
-  const centerY = -2
-  
-  out.x = (Math.random() - 0.5) * width
-  out.y = (Math.random() - 0.5) * height + centerY
-  out.z = (Math.random() - 0.5) * depth
-  
-  return out
-}
-
-export function generateFoliageDataWithGiftStart(count: number) {
-  const chaosPositions = new Float32Array(count * 3) // Now represents Gift Box positions
-  const targetPositions = new Float32Array(count * 3) // Tree positions
-  const colors = new Float32Array(count * 3)
-  
-  const temp = new THREE.Vector3()
-  const color = new THREE.Color()
-  
-  for (let i = 0; i < count; i++) {
-    // Start: Gift Box Shape
-    randomPointInGiftBox(temp)
-    chaosPositions[i * 3] = temp.x
-    chaosPositions[i * 3 + 1] = temp.y
-    chaosPositions[i * 3 + 2] = temp.z
-    
-    // Target: Segmented Tree
-    randomPointInTree(TREE_HEIGHT, TREE_RADIUS, temp)
-    targetPositions[i * 3] = temp.x
-    targetPositions[i * 3 + 1] = temp.y
-    targetPositions[i * 3 + 2] = temp.z
-    
-    // Color: Mix of Deep Emerald Greens and some Gold highlights
-    if (Math.random() > 0.95) {
-      // Gold highlight (less frequent but brighter)
-      color.setHex(0xFFD700).lerp(new THREE.Color(0xFFAA00), Math.random())
-    } else {
-      // Deep Emerald Green
-      const normalizedH = (temp.y + TREE_HEIGHT/2) / TREE_HEIGHT
-      const baseGreen = new THREE.Color(0x004020)
-      baseGreen.lerp(new THREE.Color(0x006030), normalizedH * 0.5 + Math.random() * 0.5)
-      color.copy(baseGreen)
-    }
-    
-    colors[i * 3] = color.r
-    colors[i * 3 + 1] = color.g
-    colors[i * 3 + 2] = color.b
-  }
-  
-  return { chaosPositions, targetPositions, colors }
-}
-
 export function generatePhotoData(count: number) {
   const data: { chaosPos: THREE.Vector3, targetPos: THREE.Vector3, id: number }[] = []
   
