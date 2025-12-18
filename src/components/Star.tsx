@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { TREE_HEIGHT } from '../utils/tree-math'
@@ -11,6 +11,7 @@ interface StarProps {
 
 export function Star({ progressRef, formed, onClick }: StarProps) {
   const meshRef = useRef<THREE.Mesh>(null)
+  const [hovered, setHovered] = useState(false)
   
   // Create a 5-pointed star shape
   const geometry = useMemo(() => {
@@ -77,8 +78,10 @@ export function Star({ progressRef, formed, onClick }: StarProps) {
     // Add a little wobble
     meshRef.current.rotation.z = Math.sin(t * 2) * 0.1
     
-    // Scale pulse
-    const pulse = 1 + Math.sin(t * 3) * 0.1
+    // Scale pulse - Intensify when hovered
+    const pulseSpeed = hovered ? 8 : 3
+    const pulseIntensity = hovered ? 0.3 : 0.1
+    const pulse = 1 + Math.sin(t * pulseSpeed) * pulseIntensity
     // Shrink when in chaos?
     const formScale = p * 1.0 + (1-p) * 0.1
     meshRef.current.scale.setScalar(pulse * formScale)
@@ -88,17 +91,14 @@ export function Star({ progressRef, formed, onClick }: StarProps) {
     <mesh 
       ref={meshRef} 
       geometry={geometry}
-      onClick={(e) => {
-        e.stopPropagation()
-        onClick?.()
-      }}
-      onPointerOver={() => document.body.style.cursor = 'pointer'}
-      onPointerOut={() => document.body.style.cursor = 'auto'}
+      onClick={(e) => { e.stopPropagation(); onClick?.() }}
+      onPointerOver={() => setHovered(true)}
+      onPointerOut={() => setHovered(false)}
     >
       <meshStandardMaterial 
-        color="#FFD700" 
-        emissive="#FFD700" 
-        emissiveIntensity={2.0} // Very bright
+        color={hovered ? "#FFFFAA" : "#FFD700"} // Lighter gold when hovered
+        emissive={hovered ? "#FFD700" : "#FFD700"} 
+        emissiveIntensity={hovered ? 3.0 : 2.0} // Brighter when hovered
         roughness={0.1}
         metalness={1.0}
       />

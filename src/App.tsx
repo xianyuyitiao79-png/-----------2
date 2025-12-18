@@ -18,22 +18,26 @@ import { CameraController } from './components/CameraController'
 import { IntroSnow } from './components/IntroSnow'
 import { useSpring, animated } from '@react-spring/three'
 
+import { LoveLetter } from './components/LoveLetter'
+
 function App() {
   const [formed, setFormed] = useState(false)
   const [gestureRotation, setGestureRotation] = useState(0)
+  const [showLetter, setShowLetter] = useState(false)
   
   // Intro State: 'waiting' | 'opening' | 'finished'
   const [introState, setIntroState] = useState<'waiting' | 'opening' | 'finished'>('waiting')
 
   const { treeScale } = useSpring({
-    treeScale: 1, // Always 1 now
+    treeScale: introState === 'waiting' ? 0 : 1,
     config: { mass: 1, tension: 40, friction: 20 },
+    delay: introState === 'opening' ? 1500 : 0 // Delayed until camera is inside
   })
 
   // Auto-form trigger (moved to after intro)
   useEffect(() => {
     if (introState === 'finished') {
-        const t = setTimeout(() => setFormed(true), 500) // Faster form
+        const t = setTimeout(() => setFormed(true), 1000)
         return () => clearTimeout(t)
     }
   }, [introState])
@@ -41,27 +45,16 @@ function App() {
   const handleIntroOpen = () => {
     setIntroState('opening')
     // Cinematic timing: 
-    // 0s: Click & Burst
-    // 0.2s: Disperse (Handled by IntroGift passing state up or Tree handling it)
-    // Actually, we want the tree to be "Dispersed" (Gift Shape) initially.
-    // Then when we click open, we want it to "Explode" (Disperse further or just switch to Tree Form animation)
-    
-    // Logic update:
-    // 1. Initial State: Tree is formed=false (Chaos/Gift Shape). 
-    //    We need to ensure chaos positions match gift box. (Done in tree-math)
-    // 2. Click: 
-    //    Transition to 'opening'.
-    //    Maybe trigger a "Shockwave" or just let it flow to tree?
-    //    The user said: "Directly disperse then combine into tree"
-    //    So: Gift (Particles) -> Explode outward -> Form Tree.
-    
-    // Currently `formed=false` means "Chaos/Gift Shape". `formed=true` means "Tree Shape".
-    // So we just need to switch `formed` to `true` with a nice easing.
-    
+    // 0s: Click
+    // 0.5s: Ribbon unties (handled in IntroGift)
+    // 1.0s: Lid opens & Burst (handled in IntroGift)
+    // 1.2s: Disintegration starts
+    // 1.5s: Camera moves in (CameraController)
+    // 2.5s: Fully dispersed & Camera starts pulling back, switch to finished
     setTimeout(() => {
         setIntroState('finished')
-        setFormed(true) 
-    }, 1500)
+        setFormed(true) // Ensure tree is formed immediately when finished
+    }, 2500)
   }
 
   const handleGesture = (action: 'Assemble' | 'Disperse' | null) => {
@@ -107,16 +100,14 @@ function App() {
               <IntroGift onOpen={handleIntroOpen} />
           )}
           
-          {/* Always render tree. visible=true. 
-              When introState='waiting', formed=false -> Particles are in Gift Box Shape.
-              When introState='finished', formed=true -> Particles fly to Tree Shape.
-           */}
+          {/* Always render tree but control visibility/scale */}
           <animated.group scale={treeScale} visible={true}>
             <SantaSleigh />
             <Snow />
             <Tree 
                 formed={formed} 
                 onToggle={() => setFormed(s => !s)} 
+                onStarClick={() => setShowLetter(true)}
                 gestureRotation={gestureRotation}
             />
           </animated.group>
@@ -152,6 +143,8 @@ function App() {
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4AF37]/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
         </button>
       </div>
+      {/* Love Letter Overlay */}
+      <LoveLetter isOpen={showLetter} onClose={() => setShowLetter(false)} />
     </>
   )
 }
