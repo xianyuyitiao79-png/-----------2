@@ -12,7 +12,7 @@ export function GestureController({ onGesture, onRotate }: GestureControllerProp
   const [recognizer, setRecognizer] = useState<GestureRecognizer | null>(null)
   const [webcamRunning, setWebcamRunning] = useState(false)
   const requestRef = useRef<number>(0)
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(true) // Default to true (collapsed)
 
   // 1. Initialize Recognizer
   useEffect(() => {
