@@ -105,6 +105,12 @@ export function Tree({ formed, onToggle, onStarClick, gestureRotation = 0, memor
       <SpiralLights progressRef={progressRef} formed={formed} />
       <PhotoOrnaments progressRef={progressRef} formed={formed} memoryMode={memoryMode} />
       <Star progressRef={progressRef} formed={formed} onClick={onStarClick} />
+      
+      {/* Tree Trunk */}
+      <mesh position={[0, 1, 0]}>
+        <cylinderGeometry args={[1, 1.5, 4, 8]} />
+        <meshStandardMaterial color="#3e2723" roughness={0.8} />
+      </mesh>
     </group>
   )
 }
