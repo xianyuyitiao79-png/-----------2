@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useState, useEffect } from 'react'
 import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, PerspectiveCamera, Stars, Loader } from '@react-three/drei'
+import { Environment, OrbitControls, PerspectiveCamera, Stars, Loader } from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import { Leva } from 'leva'
 import * as THREE from 'three'
@@ -93,10 +93,9 @@ function App() {
         <Suspense fallback={null}>
           <CameraController introState={introState} memoryMode={memoryMode} />
           
-          {/* Basic Lighting Setup - Replaces HDR */}
-          <ambientLight intensity={0.6} />
-          <directionalLight position={[5, 8, 5]} intensity={1.2} color="#ffe8b0" />
-          <pointLight position={[0, 5, 0]} intensity={0.8} color="#ffd27d" />
+          <ambientLight intensity={0.2} />
+          {/* Only show bright environment when finished, or keep it dim? Let's use it for reflections but hidden bg */}
+          <Environment preset="lobby" background={false} />
           
           {introState !== 'finished' && (
               <IntroGift onOpen={handleIntroOpen} />
@@ -115,7 +114,7 @@ function App() {
             />
           </animated.group>
 
-          <EffectComposer enabled={false}>
+          <EffectComposer>
             <Bloom luminanceThreshold={0.8} mipmapBlur intensity={1.2} radius={0.4} />
           </EffectComposer>
           
