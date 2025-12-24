@@ -114,7 +114,7 @@ function App() {
             />
           </animated.group>
 
-          <EffectComposer>
+          <EffectComposer enabled={false}>
             <Bloom luminanceThreshold={0.8} mipmapBlur intensity={1.2} radius={0.4} />
           </EffectComposer>
           
